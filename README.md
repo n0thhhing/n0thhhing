@@ -7,7 +7,7 @@ const aboutMe = {
 };
 
 const skills = {
-  languages:  ['JavaScript', 'lua', 'python'],
+  languages:  ['vim', 'JavaScript', 'lua', 'python'],
   frameworks: ['Node.js', 'typescript'],
   tools:      ['Git', 'NeoVim'],
 };
