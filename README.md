@@ -2,7 +2,7 @@
 
 ```typescript
 const aboutMe: object = {
-  name: 'Your Name',
+  name: 'n0thhhing',
   hobbies: ['Coding', 'BURNOUT', 'art']
 };
 
