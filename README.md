@@ -1,7 +1,7 @@
 # Welcome to My GitHub Profile! 👋
 
 ```typescript
-const aboutMe: object = {
+const about_me: object = {
   name: 'n0thhhing',
   hobbies: ['Coding', 'BURNOUT', 'art']
 };
