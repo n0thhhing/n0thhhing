@@ -29,6 +29,12 @@ jobs:
           template: classic
           base: header, activity, community, repositories, metadata
           config_timezone: America/New_York
+          plugin_activity: yes
+          plugin_activity_days: 14
+          plugin_activity_filter: all
+          plugin_activity_limit: 5
+          plugin_activity_load: 300
+          plugin_activity_visibility: all
           plugin_habits: yes
           plugin_habits_charts_type: classic
           plugin_habits_days: 14
@@ -51,3 +57,8 @@ jobs:
           plugin_lines_history_limit: 1
           plugin_lines_repositories_limit: 4
           plugin_lines_sections: base
+          plugin_notable: yes
+          plugin_notable_from: organization
+          plugin_notable_types: commit
+          plugin_repositories: yes
+          plugin_repositories_order: featured, pinned, starred, random
