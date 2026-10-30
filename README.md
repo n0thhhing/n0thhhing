@@ -25,4 +25,4 @@
 
 ### ✦ Languages
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/languages-dark.svg"><img src="assets/languages-light.svg" alt="Languages: Zig 38.6%, TypeScript 32.8%, JavaScript 11.3%, Lua 10.3%, CSS 1.8%, C++ 1.4%, C 1.4%, Other 2.3%" width="100%"></picture></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/languages-dark.svg"><img src="assets/languages-light.svg" alt="Languages: Zig 38.6%, TypeScript 32.8%, JavaScript 11.3%, Lua 10.3%, CSS 1.8%, C++ 1.4%, C 1.4%, Other 2.4%" width="100%"></picture></p>
