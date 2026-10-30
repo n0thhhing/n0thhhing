@@ -3,7 +3,6 @@
 
 GitHub strips CSS from READMEs, so each Material 3 component is an SVG, one per theme.
 """
-import base64
 import pathlib
 import textwrap
 from xml.sax.saxutils import escape
@@ -67,7 +66,7 @@ def on_tone(t, name):
 
 def svg(w, h, body, label):
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
         f'width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{escape(label)}" '
         f'font-family="{FONT}">{body}</svg>\n'
     )
@@ -90,20 +89,17 @@ def chip(x, y, label, t, accent):
     ), w
 
 
-def banner(t, avatar):
-    w, h = 840, 232
+def banner(t):
+    w, h = 840, 216
     body = (
-        f'<defs><clipPath id="card"><rect width="{w}" height="{h}" rx="28"/></clipPath>'
-        f'<clipPath id="face"><circle cx="112" cy="116" r="76"/></clipPath></defs>'
+        f'<defs><clipPath id="card"><rect width="{w}" height="{h}" rx="28"/></clipPath></defs>'
         f'<g clip-path="url(#card)"><rect width="{w}" height="{h}" fill="{t["container"]}"/>'
         f'<circle cx="790" cy="20" r="150" fill="{mix(t["green"], t["container"], 0.16)}"/>'
-        f'<circle cx="690" cy="236" r="84" fill="{mix(t["orange"], t["container"], 0.16)}"/></g>'
-        f'<image x="36" y="40" width="152" height="152" clip-path="url(#face)" '
-        f'xlink:href="data:image/jpeg;base64,{avatar}"/>'
-        + text(220, 80, "Levi", 44, t["fg"], 500)
-        + text(220, 114, "Low-level tools, ARM internals and reverse engineering.", 17, t["muted"])
+        f'<circle cx="690" cy="220" r="84" fill="{mix(t["orange"], t["container"], 0.16)}"/></g>'
+        + text(40, 80, "Levi", 44, t["fg"], 500)
+        + text(40, 114, "Low-level tools, ARM internals and reverse engineering.", 17, t["muted"])
     )
-    x = 220
+    x = 40
     for label, accent in STACK:
         c, cw = chip(x, 142, label, t, accent)
         body += c
@@ -160,10 +156,9 @@ def readme():
 
 
 def main():
-    avatar = base64.b64encode((ROOT / "avatar.jpg").read_bytes()).decode()
     (ROOT / "assets").mkdir(exist_ok=True)
     for mode, t in THEMES.items():
-        files = {"banner": banner(t, avatar)}
+        files = {"banner": banner(t)}
         for name, lang, accent, desc in PROJECTS:
             files["project-" + name.lower()] = card(t, name, lang, accent, desc)
         for label, _, filled in LINKS:
