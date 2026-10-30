@@ -7,7 +7,6 @@ import json
 import math
 import os
 import pathlib
-import random
 import textwrap
 import urllib.request
 from xml.sax.saxutils import escape
@@ -46,7 +45,7 @@ STACK = [("Zig", "orange"), ("TypeScript", "blue"), ("Lua", "purple"), ("Kotlin"
 LANGUAGE_ACCENTS = ["orange", "blue", "yellow", "purple", "green", "aqua", "red"]
 # Fades run in the SVG itself, since a README cannot animate anything else
 TWINKLE = (
-    "<style>@keyframes tw{0%,100%{opacity:.25}50%{opacity:1}}.tw{animation:tw 4s ease-in-out infinite}"
+    "<style>@keyframes tw{0%,100%{opacity:.45}50%{opacity:1}}.tw{animation:tw 4s ease-in-out infinite}"
     "@media (prefers-reduced-motion:reduce){.tw{animation:none}}</style>"
 )
 
@@ -150,17 +149,6 @@ def tinted(t, accent, w, h, rx):
     )
 
 
-def starfield(t, seed, x0, y0, x1, y1, count):
-    # Seeded, so the daily workflow only commits when the data changes
-    rng = random.Random(seed)
-    out = ""
-    for _ in range(count):
-        color = t[rng.choice(["yellow", "yellow", "fg", "aqua", "orange"])]
-        attrs = f'class="tw" style="animation-delay:-{rng.uniform(0, 4):.1f}s"'
-        out += star(rng.randint(x0, x1), rng.randint(y0, y1), rng.choice([3, 4, 5, 7, 9]), color, attrs)
-    return out
-
-
 def chip(x, y, label, t, accent):
     # shortcut: width is estimated from character count, since an SVG in <img> cannot measure text
     w = round(len(label) * 7.6 + 28)
@@ -178,11 +166,13 @@ def banner(t):
         f'<g clip-path="url(#card)">' + tinted(t, "green", w, h, 28)
         + blossom(730, 108, 132, 12, mix(t["green"], t["container"], 0.14))
         + blossom(730, 108, 92, 8, mix(t["yellow"], t["container"], 0.2))
-        + starfield(t, 7, 500, 14, 826, 202, 22)
-        + star(730, 108, 60, t["yellow"])
+        + star(730, 108, 54, t["yellow"])
         + "</g>"
+        + "".join(
+            star(x, y, r, t["yellow"], f'class="tw" style="animation-delay:-{d}s"')
+            for x, y, r, d in [(600, 36, 7, 0), (580, 108, 10, 1.3), (600, 180, 7, 2.6)]
+        )
         + text(40, 80, "Levi", 46, t["fg"], 600)
-        + star(152, 46, 13, t["yellow"], 'class="tw"')
         + text(40, 114, "Low-level tools, ARM internals and reverse engineering.", 17, t["muted"])
     )
     x = 40
@@ -198,8 +188,6 @@ def card(t, index, name, lang, accent, desc, stars):
     bg, fg = on_tone(t, accent)
     body = (
         tinted(t, accent, w, h, 24)
-        + star(w - 40, h - 36, 30, t[accent], 'opacity=".22"')
-        + starfield(t, index, w - 90, h - 30, w - 14, h - 10, 3)
         + blossom(52, 52, 27, index + 4, bg, 0.1)
         + text(52, 60, name[0].upper(), 22, fg, 500, "middle")
         + text(92, 46, name, 20, t["fg"], 500)
@@ -235,7 +223,7 @@ def languages_card(t, langs):
     for i, ((name, pct), color) in enumerate(zip(langs, colors)):
         cx, cy = 24 + i % 4 * 200, 88 + i // 4 * 40
         body += (
-            star(cx + 7, cy - 5, 9, color)
+            f'<circle cx="{cx + 6}" cy="{cy - 5}" r="6" fill="{color}"/>'
             + text(cx + 22, cy, name, 15, t["fg"], 500)
             + text(cx + 176, cy, f"{pct:.1f}%", 14, t["muted"], 400, "end")
         )
@@ -247,14 +235,10 @@ def language_summary(langs):
 
 
 def button(t, label, filled):
-    w = round(len(label) * 8.6 + (66 if filled else 48))
+    w = round(len(label) * 8.6 + 48)
     bg, fg = (mix(t["green"], t["fg"], 0.6), t["surface"]) if filled else (t["high"], t["fg"])
     assert contrast(bg, fg) >= 4.5, (label, bg, fg)
-    body = f'<rect width="{w}" height="40" rx="20" fill="{bg}"/>'
-    if filled:
-        body += star(26, 20, 8, fg) + text(40, 25, label, 14, fg, 500)
-    else:
-        body += text(w / 2, 25, label, 14, fg, 500, "middle")
+    body = f'<rect width="{w}" height="40" rx="20" fill="{bg}"/>' + text(w / 2, 25, label, 14, fg, 500, "middle")
     return svg(w, 40, body, label)
 
 
@@ -272,7 +256,7 @@ def readme(langs):
         for label, url, _ in LINKS
     )
     out.append(f'<p align="center">\n{links}\n</p>\n')
-    out.append("### \u2605 Projects\n")
+    out.append("### Projects\n")
     for i in range(0, len(PROJECTS), 2):
         cells = "\n".join(
             '  <a href="https://github.com/n0thhhing/%s">%s</a>'
@@ -280,7 +264,7 @@ def readme(langs):
             for name, _, _, desc in PROJECTS[i:i + 2]
         )
         out.append(f'<p align="center">\n{cells}\n</p>\n')
-    out.append("### \u2605 Languages\n")
+    out.append("### Languages\n")
     out.append('<p align="center">' + picture("languages", "Languages: " + language_summary(langs), 'width="100%"') + "</p>\n")
     return "\n".join(out)
 
