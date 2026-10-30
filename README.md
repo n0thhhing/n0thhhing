@@ -6,7 +6,7 @@
   <a href="https://instagram.com/levi.napz"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/link-instagram-dark.svg"><img src="assets/link-instagram-light.svg" alt="Instagram" height="40"></picture></a>
 </p>
 
-### ✦ Projects
+### ★ Projects
 
 <p align="center">
   <a href="https://github.com/n0thhhing/zeon"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/project-zeon-dark.svg"><img src="assets/project-zeon-light.svg" alt="zeon: ARM and ARM64 Neon intrinsics in pure Zig and inline assembly." width="49%"></picture></a>
@@ -23,6 +23,6 @@
   <a href="https://github.com/n0thhhing/Discord-rich-presence"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/project-discord-rich-presence-dark.svg"><img src="assets/project-discord-rich-presence-light.svg" alt="Discord-rich-presence: Custom Discord Rich Presence over the Gateway API." width="49%"></picture></a>
 </p>
 
-### ✦ Languages
+### ★ Languages
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/languages-dark.svg"><img src="assets/languages-light.svg" alt="Languages: Zig 38.6%, TypeScript 32.8%, JavaScript 11.3%, Lua 10.3%, CSS 1.8%, C++ 1.4%, C 1.4%, Other 2.4%" width="100%"></picture></p>

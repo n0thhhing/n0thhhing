@@ -120,10 +120,17 @@ def text(x, y, s, size, fill, weight=400, anchor="start"):
     )
 
 
-def sparkle(cx, cy, r, fill, attrs=""):
-    """A four-pointed star with concave sides."""
-    d = f"M{cx} {cy - r}Q{cx} {cy} {cx + r} {cy}Q{cx} {cy} {cx} {cy + r}Q{cx} {cy} {cx - r} {cy}Q{cx} {cy} {cx} {cy - r}Z"
-    return f'<path d="{d}" fill="{fill}" {attrs}/>'
+def star(cx, cy, r, fill, attrs=""):
+    """A five-pointed star, with the round stroke softening its points to match M3."""
+    pts = []
+    for i in range(10):
+        a = math.radians(i * 36 - 90)
+        radius = r if i % 2 == 0 else r * 0.48
+        pts.append(f"{cx + radius * math.cos(a):.1f} {cy + radius * math.sin(a):.1f}")
+    return (
+        f'<path d="M{"L".join(pts)}Z" fill="{fill}" stroke="{fill}" '
+        f'stroke-width="{r * 0.2:.1f}" stroke-linejoin="round" {attrs}/>'
+    )
 
 
 def blossom(cx, cy, r, points, fill, depth=0.08):
@@ -150,7 +157,7 @@ def starfield(t, seed, x0, y0, x1, y1, count):
     for _ in range(count):
         color = t[rng.choice(["yellow", "yellow", "fg", "aqua", "orange"])]
         attrs = f'class="tw" style="animation-delay:-{rng.uniform(0, 4):.1f}s"'
-        out += sparkle(rng.randint(x0, x1), rng.randint(y0, y1), rng.choice([3, 4, 5, 7, 9]), color, attrs)
+        out += star(rng.randint(x0, x1), rng.randint(y0, y1), rng.choice([3, 4, 5, 7, 9]), color, attrs)
     return out
 
 
@@ -172,10 +179,10 @@ def banner(t):
         + blossom(730, 108, 132, 12, mix(t["green"], t["container"], 0.14))
         + blossom(730, 108, 92, 8, mix(t["yellow"], t["container"], 0.2))
         + starfield(t, 7, 500, 14, 826, 202, 22)
-        + sparkle(730, 108, 60, t["yellow"])
+        + star(730, 108, 60, t["yellow"])
         + "</g>"
         + text(40, 80, "Levi", 46, t["fg"], 600)
-        + sparkle(152, 46, 13, t["yellow"], 'class="tw"')
+        + star(152, 46, 13, t["yellow"], 'class="tw"')
         + text(40, 114, "Low-level tools, ARM internals and reverse engineering.", 17, t["muted"])
     )
     x = 40
@@ -191,7 +198,7 @@ def card(t, index, name, lang, accent, desc, stars):
     bg, fg = on_tone(t, accent)
     body = (
         tinted(t, accent, w, h, 24)
-        + sparkle(w - 40, h - 36, 30, t[accent], 'opacity=".22"')
+        + star(w - 40, h - 36, 30, t[accent], 'opacity=".22"')
         + starfield(t, index, w - 90, h - 30, w - 14, h - 10, 3)
         + blossom(52, 52, 27, index + 4, bg, 0.1)
         + text(52, 60, name[0].upper(), 22, fg, 500, "middle")
@@ -228,7 +235,7 @@ def languages_card(t, langs):
     for i, ((name, pct), color) in enumerate(zip(langs, colors)):
         cx, cy = 24 + i % 4 * 200, 88 + i // 4 * 40
         body += (
-            sparkle(cx + 7, cy - 5, 9, color)
+            star(cx + 7, cy - 5, 9, color)
             + text(cx + 22, cy, name, 15, t["fg"], 500)
             + text(cx + 176, cy, f"{pct:.1f}%", 14, t["muted"], 400, "end")
         )
@@ -245,7 +252,7 @@ def button(t, label, filled):
     assert contrast(bg, fg) >= 4.5, (label, bg, fg)
     body = f'<rect width="{w}" height="40" rx="20" fill="{bg}"/>'
     if filled:
-        body += sparkle(26, 20, 8, fg) + text(40, 25, label, 14, fg, 500)
+        body += star(26, 20, 8, fg) + text(40, 25, label, 14, fg, 500)
     else:
         body += text(w / 2, 25, label, 14, fg, 500, "middle")
     return svg(w, 40, body, label)
@@ -265,7 +272,7 @@ def readme(langs):
         for label, url, _ in LINKS
     )
     out.append(f'<p align="center">\n{links}\n</p>\n')
-    out.append("### \u2726 Projects\n")
+    out.append("### \u2605 Projects\n")
     for i in range(0, len(PROJECTS), 2):
         cells = "\n".join(
             '  <a href="https://github.com/n0thhhing/%s">%s</a>'
@@ -273,7 +280,7 @@ def readme(langs):
             for name, _, _, desc in PROJECTS[i:i + 2]
         )
         out.append(f'<p align="center">\n{cells}\n</p>\n')
-    out.append("### \u2726 Languages\n")
+    out.append("### \u2605 Languages\n")
     out.append('<p align="center">' + picture("languages", "Languages: " + language_summary(langs), 'width="100%"') + "</p>\n")
     return "\n".join(out)
 
