@@ -3,8 +3,11 @@
 
 GitHub strips CSS from READMEs, so each Material 3 component is an SVG, one per theme.
 """
+import json
+import os
 import pathlib
 import textwrap
+import urllib.request
 from xml.sax.saxutils import escape
 
 ROOT = pathlib.Path(__file__).parent
@@ -38,6 +41,35 @@ LINKS = [
     ("Instagram", "https://instagram.com/levi.napz", False),
 ]
 STACK = [("Zig", "orange"), ("TypeScript", "blue"), ("Lua", "purple"), ("Kotlin", "green"), ("AArch64", "red")]
+LANGUAGE_ACCENTS = ["orange", "blue", "yellow", "purple", "green", "aqua", "red"]
+
+
+def api(path):
+    req = urllib.request.Request("https://api.github.com/" + path, headers={"Accept": "application/vnd.github+json"})
+    if os.environ.get("GITHUB_TOKEN"):
+        req.add_header("Authorization", "Bearer " + os.environ["GITHUB_TOKEN"])
+    with urllib.request.urlopen(req, timeout=30) as res:
+        return json.load(res)
+
+
+def fetch_languages():
+    # shortcut: reads the first 100 repos only, add paging past that
+    repos = api("users/n0thhhing/repos?type=owner&per_page=100")
+    totals = {}
+    for repo in repos:
+        if not repo["fork"]:
+            for lang, size in api(f"repos/{repo['full_name']}/languages").items():
+                totals[lang] = totals.get(lang, 0) + size
+    return totals
+
+
+def top_languages(totals, n=len(LANGUAGE_ACCENTS)):
+    """The n largest languages as (name, percent), with the rest grouped into Other."""
+    whole = sum(totals.values())
+    ranked = sorted(totals.items(), key=lambda kv: (-kv[1], kv[0]))
+    rest = sum(size for _, size in ranked[n:])
+    top = ranked[:n] + ([("Other", rest)] if rest else [])
+    return [(name, size * 100 / whole) for name, size in top]
 
 
 def rgb(c):
@@ -122,6 +154,34 @@ def card(t, name, lang, accent, desc):
     return svg(w, h, body, f"{name} ({lang}): {desc}")
 
 
+def languages_card(t, langs):
+    w, h = 840, 172
+    x, bar_w = 24, w - 48
+    colors = [t[LANGUAGE_ACCENTS[i]] if name != "Other" else t["muted"] for i, (name, _) in enumerate(langs)]
+    body = (
+        f'<rect width="{w}" height="{h}" rx="24" fill="{t["container"]}"/>'
+        f'<clipPath id="bar"><rect x="{x}" y="36" width="{bar_w}" height="12" rx="6"/></clipPath>'
+        f'<g clip-path="url(#bar)">'
+    )
+    for (_, pct), color in zip(langs, colors):
+        seg = bar_w * pct / 100
+        body += f'<rect x="{x:.1f}" y="36" width="{max(seg - 2, 1):.1f}" height="12" fill="{color}"/>'
+        x += seg
+    body += "</g>"
+    for i, ((name, pct), color) in enumerate(zip(langs, colors)):
+        cx, cy = 24 + i % 4 * 200, 88 + i // 4 * 40
+        body += (
+            f'<circle cx="{cx + 6}" cy="{cy - 5}" r="6" fill="{color}"/>'
+            + text(cx + 22, cy, name, 15, t["fg"], 500)
+            + text(cx + 176, cy, f"{pct:.1f}%", 14, t["muted"], 400, "end")
+        )
+    return svg(w, h, body, "Languages: " + language_summary(langs))
+
+
+def language_summary(langs):
+    return ", ".join(f"{name} {pct:.1f}%" for name, pct in langs)
+
+
 def button(t, label, filled):
     w = round(len(label) * 8.6 + 48)
     bg, fg = (mix(t["green"], t["fg"], 0.6), t["surface"]) if filled else (t["high"], t["fg"])
@@ -137,7 +197,7 @@ def picture(name, alt, attrs):
     )
 
 
-def readme():
+def readme(langs):
     out = ['<p align="center">' + picture("banner", "Levi: low-level tools, ARM internals and reverse engineering", 'width="100%"') + "</p>\n"]
     links = "\n".join(
         '  <a href="%s">%s</a>' % (url, picture("link-" + label.lower(), label, 'height="40"'))
@@ -152,20 +212,24 @@ def readme():
             for name, _, _, desc in PROJECTS[i:i + 2]
         )
         out.append(f'<p align="center">\n{cells}\n</p>\n')
+    out.append("### Languages\n")
+    out.append('<p align="center">' + picture("languages", "Languages: " + language_summary(langs), 'width="100%"') + "</p>\n")
     return "\n".join(out)
 
 
 def main():
+    assert top_languages({"a": 3, "b": 1}, 1) == [("a", 75.0), ("Other", 25.0)]
+    langs = top_languages(fetch_languages())
     (ROOT / "assets").mkdir(exist_ok=True)
     for mode, t in THEMES.items():
-        files = {"banner": banner(t)}
+        files = {"banner": banner(t), "languages": languages_card(t, langs)}
         for name, lang, accent, desc in PROJECTS:
             files["project-" + name.lower()] = card(t, name, lang, accent, desc)
         for label, _, filled in LINKS:
             files["link-" + label.lower()] = button(t, label, filled)
         for name, content in files.items():
             (ROOT / "assets" / f"{name}-{mode}.svg").write_text(content)
-    (ROOT / "README.md").write_text(readme())
+    (ROOT / "README.md").write_text(readme(langs))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,21 @@
+name: Update languages
+on:
+  schedule: [{cron: "0 6 * * *"}]
+  workflow_dispatch:
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 gen.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - run: |
+          git add -A
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update language stats"
+          git push

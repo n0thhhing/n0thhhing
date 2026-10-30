@@ -22,3 +22,7 @@
   <a href="https://github.com/n0thhhing/ts-capstone"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/project-ts-capstone-dark.svg"><img src="assets/project-ts-capstone-light.svg" alt="ts-capstone: Capstone disassembly framework bindings for TypeScript." width="49%"></picture></a>
   <a href="https://github.com/n0thhhing/Discord-rich-presence"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/project-discord-rich-presence-dark.svg"><img src="assets/project-discord-rich-presence-light.svg" alt="Discord-rich-presence: Custom Discord Rich Presence over the Gateway API." width="49%"></picture></a>
 </p>
+
+### Languages
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/languages-dark.svg"><img src="assets/languages-light.svg" alt="Languages: Zig 38.6%, TypeScript 32.8%, JavaScript 11.3%, Lua 10.3%, CSS 1.8%, C++ 1.4%, C 1.4%, Other 2.3%" width="100%"></picture></p>
