@@ -14,17 +14,17 @@ from xml.sax.saxutils import escape
 ROOT = pathlib.Path(__file__).parent
 FONT = "Roboto, ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
 
-# Gruvbox Material, medium contrast
+# Material 3 baseline scheme, with tone 40 / tone 80 accents for extra hues
 THEMES = {
     "dark": dict(
-        surface="#282828", container="#32302f", high="#45403d", fg="#d4be98", muted="#a89984",
-        red="#ea6962", orange="#e78a4e", yellow="#d8a657", green="#a9b665",
-        aqua="#89b482", blue="#7daea3", purple="#d3869b",
+        surface="#141218", container="#211f26", high="#36343b", fg="#e6e0e9", muted="#cac4d0",
+        red="#f2b8b5", orange="#ffb871", yellow="#f6bf26", green="#6dd58c",
+        aqua="#80d5d4", blue="#a2c9ff", purple="#d0bcff",
     ),
     "light": dict(
-        surface="#fbf1c7", container="#f4e8be", high="#ddccab", fg="#654735", muted="#7c6f64",
-        red="#c14a4a", orange="#c35e0a", yellow="#b47109", green="#6c782e",
-        aqua="#4c7a5d", blue="#45707a", purple="#945e80",
+        surface="#fef7ff", container="#f3edf7", high="#e6e0e9", fg="#1d1b20", muted="#49454f",
+        red="#b3261e", orange="#8b5000", yellow="#7c5800", green="#146c2e",
+        aqua="#006a6a", blue="#00639b", purple="#6750a4",
     ),
 }
 
@@ -43,11 +43,6 @@ LINKS = [
 ]
 STACK = [("Zig", "orange"), ("TypeScript", "blue"), ("Lua", "purple"), ("Kotlin", "green"), ("AArch64", "red")]
 LANGUAGE_ACCENTS = ["orange", "blue", "yellow", "purple", "green", "aqua", "red"]
-# Fades run in the SVG itself, since a README cannot animate anything else
-TWINKLE = (
-    "<style>@keyframes tw{0%,100%{opacity:.45}50%{opacity:1}}.tw{animation:tw 4s ease-in-out infinite}"
-    "@media (prefers-reduced-motion:reduce){.tw{animation:none}}</style>"
-)
 
 
 def api(path):
@@ -108,7 +103,7 @@ def svg(w, h, body, label):
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" '
         f'width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{escape(label)}" '
-        f'font-family="{FONT}">{TWINKLE}{body}</svg>\n'
+        f'font-family="{FONT}">{body}</svg>\n'
     )
 
 
@@ -116,19 +111,6 @@ def text(x, y, s, size, fill, weight=400, anchor="start"):
     return (
         f'<text x="{x}" y="{y}" font-size="{size}" font-weight="{weight}" '
         f'fill="{fill}" text-anchor="{anchor}">{escape(s)}</text>'
-    )
-
-
-def star(cx, cy, r, fill, attrs=""):
-    """A five-pointed star, with the round stroke softening its points to match M3."""
-    pts = []
-    for i in range(10):
-        a = math.radians(i * 36 - 90)
-        radius = r if i % 2 == 0 else r * 0.48
-        pts.append(f"{cx + radius * math.cos(a):.1f} {cy + radius * math.sin(a):.1f}")
-    return (
-        f'<path d="M{"L".join(pts)}Z" fill="{fill}" stroke="{fill}" '
-        f'stroke-width="{r * 0.2:.1f}" stroke-linejoin="round" {attrs}/>'
     )
 
 
@@ -163,15 +145,11 @@ def banner(t):
     w, h = 840, 216
     body = (
         f'<defs><clipPath id="card"><rect width="{w}" height="{h}" rx="28"/></clipPath></defs>'
-        f'<g clip-path="url(#card)">' + tinted(t, "green", w, h, 28)
-        + blossom(730, 108, 132, 12, mix(t["green"], t["container"], 0.14))
-        + blossom(730, 108, 92, 8, mix(t["yellow"], t["container"], 0.2))
-        + star(730, 108, 54, t["yellow"])
+        f'<g clip-path="url(#card)">' + tinted(t, "purple", w, h, 28)
+        + blossom(748, 96, 128, 12, mix(t["purple"], t["container"], 0.22))
+        + blossom(748, 96, 62, 8, t["purple"])
+        + blossom(606, 170, 48, 5, mix(t["red"], t["container"], 0.5), 0.12)
         + "</g>"
-        + "".join(
-            star(x, y, r, t["yellow"], f'class="tw" style="animation-delay:-{d}s"')
-            for x, y, r, d in [(600, 36, 7, 0), (580, 108, 10, 1.3), (600, 180, 7, 2.6)]
-        )
         + text(40, 80, "Levi", 46, t["fg"], 600)
         + text(40, 114, "Low-level tools, ARM internals and reverse engineering.", 17, t["muted"])
     )
@@ -183,7 +161,7 @@ def banner(t):
     return svg(w, h, body, "Levi: low-level tools, ARM internals and reverse engineering")
 
 
-def card(t, index, name, lang, accent, desc, stars):
+def card(t, index, name, lang, accent, desc):
     w, h = 412, 172
     bg, fg = on_tone(t, accent)
     body = (
@@ -193,17 +171,9 @@ def card(t, index, name, lang, accent, desc, stars):
         + text(92, 46, name, 20, t["fg"], 500)
         + text(92, 68, lang, 14, t["muted"])
     )
-    if stars:
-        label = f"\u2605 {stars}"
-        pill = round(len(label) * 8 + 24)
-        body += (
-            f'<rect x="{w - 20 - pill}" y="24" width="{pill}" height="30" rx="15" fill="{bg}"/>'
-            + text(w - 20 - pill / 2, 44, label, 13, fg, 500, "middle")
-        )
     for i, line in enumerate(textwrap.wrap(desc, 48)[:3]):
         body += text(24, 120 + i * 22, line, 15, t["fg"])
-    alt = f"{name} ({lang}, {stars} stars): {desc}" if stars else f"{name} ({lang}): {desc}"
-    return svg(w, h, body, alt)
+    return svg(w, h, body, f"{name} ({lang}): {desc}")
 
 
 def languages_card(t, langs):
@@ -211,7 +181,7 @@ def languages_card(t, langs):
     x, bar_w = 24, w - 48
     colors = [t[LANGUAGE_ACCENTS[i]] if name != "Other" else t["muted"] for i, (name, _) in enumerate(langs)]
     body = (
-        tinted(t, "yellow", w, h, 24)
+        tinted(t, "blue", w, h, 24)
         + f'<clipPath id="bar"><rect x="{x}" y="34" width="{bar_w}" height="16" rx="8"/></clipPath>'
         f'<g clip-path="url(#bar)">'
     )
@@ -236,7 +206,7 @@ def language_summary(langs):
 
 def button(t, label, filled):
     w = round(len(label) * 8.6 + 48)
-    bg, fg = (mix(t["green"], t["fg"], 0.6), t["surface"]) if filled else (t["high"], t["fg"])
+    bg, fg = (t["purple"], t["surface"]) if filled else (t["high"], t["fg"])
     assert contrast(bg, fg) >= 4.5, (label, bg, fg)
     body = f'<rect width="{w}" height="40" rx="20" fill="{bg}"/>' + text(w / 2, 25, label, 14, fg, 500, "middle")
     return svg(w, 40, body, label)
@@ -271,14 +241,12 @@ def readme(langs):
 
 def main():
     assert top_languages({"a": 3, "b": 1}, 1) == [("a", 75.0), ("Other", 25.0)]
-    repos = fetch_repos()
-    langs = top_languages(fetch_languages(repos))
-    stars = {repo["name"]: repo["stargazers_count"] for repo in repos}
+    langs = top_languages(fetch_languages(fetch_repos()))
     (ROOT / "assets").mkdir(exist_ok=True)
     for mode, t in THEMES.items():
         files = {"banner": banner(t), "languages": languages_card(t, langs)}
         for i, (name, lang, accent, desc) in enumerate(PROJECTS):
-            files["project-" + name.lower()] = card(t, i, name, lang, accent, desc, stars.get(name, 0))
+            files["project-" + name.lower()] = card(t, i, name, lang, accent, desc)
         for label, _, filled in LINKS:
             files["link-" + label.lower()] = button(t, label, filled)
         for name, content in files.items():
