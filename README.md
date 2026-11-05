@@ -25,4 +25,4 @@
 
 ### Languages
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/languages-dark.svg"><img src="assets/languages-light.svg" alt="Languages: Zig 32.6%, TypeScript 27.7%, Java 11.1%, JavaScript 9.6%, Lua 8.7%, Rust 3.2%, Python 1.8%, Other 5.4%" width="100%"></picture></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/languages-dark.svg"><img src="assets/languages-light.svg" alt="Languages: Zig 29.8%, TypeScript 25.3%, Java 15.5%, JavaScript 8.9%, Lua 7.9%, Rust 4.1%, Python 3.3%, Other 5.1%" width="100%"></picture></p>
